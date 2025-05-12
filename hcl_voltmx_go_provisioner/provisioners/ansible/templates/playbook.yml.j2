@@ -40,16 +40,6 @@
     # _progress_setup_role_definitions is now expected to be passed in by generate-playbook.yml
     # when it renders this template. It will be used below when calling the progress role.
   {% endif %}
-        {% set _vars = role_def.vars | default({}) %}
-        {% set _run_tasks = _vars.run_tasks if 'run_tasks' in _vars else true %}
-        {% if _run_tasks and _vars.count_progress | default(false) %}
-        {
-          "name": "{{ role_def.name }}",
-          "progress_units": {{ _vars.progress_units | default(1) | int }}
-        },
-        {% endif %}
-      {% endfor %}]
-  {% endif %}
   {% if playbook_collections is defined and playbook_collections and playbook_collections != "" %}
   collections:
     {% for key, value in playbook_collections.items() %}
