@@ -1,0 +1,784 @@
+name: HCL VoltMX Go Provisioner
+type: hcl_voltmx_go_provisioner
+description: STARTcloud - Switchboard Provisioner
+author: MarkProminic
+version: 0.1.23
+
+configuration:
+  basicFields:
+    - name: hostname
+      type: text
+      label: Server Hostname
+      placeholder: Enter server hostname
+      tooltip: The hostname for your Switchboard server
+      required: true
+      hidden: false
+      restrict: a-zA-Z0-9.-
+    - name: DOMAIN
+      type: text
+      label: Domain
+      placeholder: example.com
+      tooltip: The domain name for your server
+      required: true
+      hidden: false
+      restrict: a-zA-Z0-9.-
+    - name: USER_EMAIL
+      type: text
+      label: User Email
+      placeholder: user@example.com
+      tooltip: Email address for the server administrator
+      required: true
+      hidden: true
+    - name: FIRMWARE_TYPE
+      type: text
+      label: Firmware Type
+      defaultValue: UEFI
+      tooltip: The firmware type for the virtual machine
+      required: false
+    - name: POST_PROVISION
+      type: checkbox
+      label: Post Provision
+      defaultValue: true
+      tooltip: Run post-provisioning tasks
+      required: false
+    - name: SHOW_CONSOLE
+      type: checkbox
+      label: Show Console
+      defaultValue: false
+      tooltip: Show the VirtualBox console during provisioning
+      required: false
+    - name: SERVER_DEFAULT_USER
+      type: text
+      label: Default User
+      defaultValue: startcloud
+      tooltip: Default username for the server
+      required: false
+    - name: SERVER_DEFAULT_USER_PASS
+      type: text
+      label: Default Password
+      defaultValue: STARTcloud24@!
+      tooltip: Default password for the server user
+      required: false
+    - name: BOX_VERSION
+      type: dropdown
+      label: Box Version
+      tooltip: Version of Box
+      defaultValue: 2025.4.30
+      options:
+        - value: 2025.4.30
+          label: 2025.4.30
+        - value: 2025.2.9
+          label: 2025.2.9
+        - value: 0.0.9
+          label: 0.0.9
+    - name: BOX
+      type: dropdown
+      label: Vagrant Box
+      tooltip: Vagrant Box
+      defaultValue: STARTcloud/debian12-server
+      options:
+        - value: STARTcloud/debian12-server
+          label: STARTcloud - Debian
+  advancedFields:
+    - name: numCPUs
+      type: number
+      label: Number of CPUs
+      tooltip: The number of CPUs to allocate to this server
+      defaultValue: 2
+      min: 1
+      max: 8
+    - name: CONSOLE_PORT
+      type: number
+      label: Console Port
+      tooltip: Port number for the console
+      defaultValue: 0
+      min: 0
+      max: 65535
+    - name: CONSOLE_HOST
+      type: text
+      label: Console Host
+      defaultValue: 0.0.0.0
+      tooltip: Host address for the console
+      required: false
+    - name: memory
+      type: number
+      label: Memory (GB)
+      tooltip: The amount of memory to allocate to this server in GB
+      defaultValue: 4
+      min: 2
+      max: 16
+    - name: networkAddress
+      type: text
+      label: Network Address
+      placeholder: 192.168.1.100
+      tooltip: The IP address for this server
+      restrict: 0-9.
+      required: false
+    - name: NETWORK_NETMASK
+      type: text
+      label: Network Netmask
+      placeholder: 255.255.255.0
+      tooltip: The netmask for this server
+      restrict: 0-9.
+      required: false
+    - name: networkGateway
+      type: text
+      label: Network Gateway
+      placeholder: 192.168.1.1
+      tooltip: The gateway for this server
+      restrict: 0-9.
+      required: false
+    - name: nameServer1
+      type: text
+      label: DNS Server 1
+      placeholder: 8.8.8.8
+      tooltip: The primary DNS server for this server
+      restrict: 0-9.
+      required: false
+    - name: nameServer2
+      type: text
+      label: DNS Server 2
+      placeholder: 8.8.4.4
+      tooltip: The secondary DNS server for this server
+      restrict: 0-9.
+      required: false
+    - name: networkBridge
+      type: dropdown
+      label: Network Bridge
+      tooltip: The network bridge to use
+      required: false
+    - name: dhcp4
+      type: checkbox
+      label: Use DHCP
+      tooltip: Use DHCP for network configuration
+      defaultValue: true
+    - name: disableBridgeAdapter
+      type: checkbox
+      label: Disable Bridge Adapter
+      tooltip: Disable the bridge adapter
+      defaultValue: false
+    - name: setupWait
+      type: number
+      label: Setup Wait Time (seconds)
+      tooltip: Time to wait for setup to complete
+      defaultValue: 300
+      min: 60
+      max: 600
+    - name: DOWNLOAD_BASE_URL
+      type: text
+      label: Resource Download Base URL
+      tooltip: URL to the Artifact Repository of your choice
+      required: false
+    - name: DOWNLOAD_AUTH_ENABLED
+      type: checkbox
+      label: Resource Download Base URL
+      defaultValue: false
+      tooltip: >-
+        Enable Authentication for the URL to the Artifact Repository of your
+        choice
+      required: false
+    - name: DOWNLOAD_AUTH_USER
+      type: text
+      label: Resource Download Base URL
+      tooltip: >-
+        Authentication User for the URL to the Artifact Repository of your
+        choice
+      required: false
+    - name: DOWNLOAD_AUTH_PASS
+      type: text
+      label: Resource Download Base URL
+      tooltip: >-
+        Authentication Password for the URL to the Artifact Repository of your
+        choice
+      required: false
+    - name: SYNC_METHOD
+      type: dropdown
+      label: Sync Method
+      tooltip: Method to use for syncing files
+      defaultValue: rsync
+      options:
+        - value: rsync
+          label: Rsync
+        - value: scp
+          label: SCP
+    - name: SYNCBACK_ID_FILES
+      type: checkbox
+      label: Sync Back ID Files
+      defaultValue: false
+      tooltip: Sync ID files back to the host
+    - name: DEBUG_ALL_ANSIBLE_TASKS
+      type: checkbox
+      label: Debug All Ansible Tasks
+      defaultValue: false
+      tooltip: Enable debugging for all Ansible tasks
+    - name: CERT_SELFSIGNED
+      type: checkbox
+      label: Use Self-Signed Certificates
+      defaultValue: true
+      tooltip: Use self-signed SSL certificates
+    - name: USE_HTTP_PROXY
+      type: checkbox
+      label: Use HTTP Proxy
+      defaultValue: false
+      tooltip: Use HTTP proxy for downloads and updates
+    - name: HTTP_PROXY_HOST
+      type: text
+      label: HTTP Proxy Host
+      tooltip: Hostname or IP address of the HTTP proxy
+      required: false
+    - name: HTTP_PROXY_PORT
+      type: text
+      label: HTTP Proxy Port
+      tooltip: Port number for the HTTP proxy
+      required: false
+    - name: VAGRANT_SSH_INSERT_KEY
+      type: checkbox
+      label: Vagrant SSH Insert Key
+      defaultValue: true
+      tooltip: Insert Vagrant's insecure key
+      required: false
+    - name: VAGRANT_SSH_FORWARD_AGENT
+      type: checkbox
+      label: Vagrant SSH Forward Agent
+      defaultValue: true
+      tooltip: Forward SSH agent
+      required: false
+    - name: VAGRANT_SSH_KEEP_ALIVE
+      type: checkbox
+      label: Vagrant SSH Keep Alive
+      defaultValue: true
+      tooltip: Keep SSH connection alive
+      required: false
+    - name: HAPROXY_SSL_REDIRECT
+      type: checkbox
+      label: HAProxy SSL Redirect
+      defaultValue: true
+      tooltip: Redirect HTTP to HTTPS in HAProxy
+      required: false
+    - name: LETSENCRYPT_ENABLED
+      type: checkbox
+      label: Let's Encrypt Enabled
+      defaultValue: false
+      tooltip: Enable Let's Encrypt for SSL certificates
+      required: false
+    - name: LETSENCRYPT_STAGING_ENABLED
+      type: checkbox
+      label: Let's Encrypt Staging
+      defaultValue: false
+      tooltip: Use Let's Encrypt staging environment
+      required: false
+    - name: EXTRA_PACKAGES
+      type: text
+      label: Extra Packages
+      defaultValue: htop
+      tooltip: Additional packages to install (comma-separated)
+      required: false
+    - name: ASTERISK_STATIC_HTTP_PORT
+      type: number
+      label: Asterisk Static HTTP Port
+      tooltip: >-
+        Port for Asterisk's built-in HTTP server (default: 8088). Original var:
+        asterisk_static_http_port
+      defaultValue: 8088
+      required: false
+    - name: ASTERISK_STATIC_HTTPS_PORT
+      type: number
+      label: Asterisk Static HTTPS Port
+      tooltip: >-
+        Port for Asterisk's built-in HTTPS server (default: 8089). Original var:
+        asterisk_static_https_port
+      defaultValue: 8089
+      required: false
+    - name: STARTCLOUD_ASTERISK_PJSIP_UDP_PORT
+      type: number
+      label: PJSIP UDP Port
+      tooltip: >-
+        Default PJSIP UDP port (default: 5060). Original var:
+        startcloud_asterisk_pjsip_udp_port
+      defaultValue: 5060
+      required: false
+    - name: STARTCLOUD_ASTERISK_PJSIP_TCP_PORT
+      type: number
+      label: PJSIP TCP Port
+      tooltip: >-
+        Default PJSIP TCP port (default: 5062). Original var:
+        startcloud_asterisk_pjsip_tcp_port
+      defaultValue: 5062
+      required: false
+    - name: STARTCLOUD_ASTERISK_PJSIP_TLS_PORT
+      type: number
+      label: PJSIP TLS Port
+      tooltip: >-
+        Default PJSIP TLS port (default: 5061). Original var:
+        startcloud_asterisk_pjsip_tls_port
+      defaultValue: 5061
+      required: false
+    - name: STARTCLOUD_ASTERISK_MANAGER_PORT
+      type: number
+      label: Asterisk Manager Port (AMI)
+      tooltip: >-
+        Default Asterisk Manager Interface (AMI) port (default: 5038). Original
+        var: startcloud_asterisk_manager_port
+      defaultValue: 5038
+      required: false
+    - name: STARTCLOUD_ASTERISK_RTP_START
+      type: number
+      label: RTP Port Range Start
+      tooltip: >-
+        Start of the RTP port range (default: 10000). Original var:
+        startcloud_asterisk_rtp_start
+      defaultValue: 10000
+      required: false
+    - name: STARTCLOUD_ASTERISK_RTP_END
+      type: number
+      label: RTP Port Range End
+      tooltip: >-
+        End of the RTP port range (default: 20000). Original var:
+        startcloud_asterisk_rtp_end
+      defaultValue: 20000
+      required: false
+    - name: ASTERISK_VERSION
+      type: text
+      label: Asterisk Version
+      tooltip: >-
+        Asterisk version to install (default: asterisk-20.11.1.tar.gz). Original
+        var: asterisk_version
+      defaultValue: asterisk-20.11.1.tar.gz
+      required: false
+    - name: ASTERISK_DB_HOST
+      type: text
+      label: Asterisk DB Host
+      tooltip: >-
+        Hostname or IP of the Asterisk database server (default:
+        vagrant.postgres). Original var: asterisk_db_host
+      defaultValue: vagrant.postgres
+      required: false
+    - name: ASTERISK_DB_PORT
+      type: text
+      label: Asterisk DB Port
+      tooltip: >-
+        Port for the Asterisk database server (default: 5432). Original var:
+        asterisk_db_port
+      defaultValue: '5432'
+      required: false
+    - name: ASTERISK_DB_NAME
+      type: text
+      label: Asterisk DB Name
+      tooltip: >-
+        Name of the Asterisk database (default: asteriskdb). Original var:
+        asterisk_db_name
+      defaultValue: asteriskdb
+      required: false
+    - name: ASTERISK_DB_USER
+      type: text
+      label: Asterisk DB User
+      tooltip: >-
+        Username for the Asterisk database (default: asterisk_role). Original
+        var: asterisk_db_user
+      defaultValue: asterisk_role
+      required: false
+    - name: ASTERISK_DB_PASSWORD
+      type: text
+      label: Asterisk DB Password
+      tooltip: >-
+        Password for the Asterisk database user (default: 4P3wafe#CK27).
+        Original var: asterisk_db_password
+      defaultValue: 4P3wafe#CK27
+      required: false
+    - name: SB_ADMIN_USERNAME
+      type: text
+      label: Switchboard Admin Username
+      tooltip: >-
+        Switchboard admin username (default: test@moonshine-ide.com). Original
+        var: sb_admin_username
+      defaultValue: testuser@mydomain.com
+      required: false
+    - name: SB_ADMIN_NAME
+      type: text
+      label: Switchboard Admin Name
+      tooltip: 'Switchboard admin name (default: Admin). Original var: sb_admin_name'
+      defaultValue: Admin
+      required: false
+    - name: SB_CUSTOMER_ID
+      type: text
+      label: Switchboard Customer ID
+      tooltip: >-
+        Switchboard customer ID (default: MYDOMAIN.NET). Original var:
+        sb_customer_id
+      defaultValue: MYDOMAIN.COM
+      required: false
+    - name: CUSTOMER_NAME
+      type: text
+      label: Customer Name (Organization)
+      tooltip: >-
+        The name of the customer or organization (default: MYDOMAIN.NET).
+        Original var: customer_name
+      defaultValue: MYDOMAIN.NET
+      required: false
+    - name: SB_LOGIN_TOKEN
+      type: text
+      label: Switchboard Login Token
+      tooltip: >-
+        Switchboard login token (default: fb2c4d2f-7116-40ec-9bc3-3f5b25de96d5).
+        Original var: sb_login_token
+      defaultValue: fb2c4d2f-7116-40ec-9bc3-3f5b25de96d5
+      required: false
+    - name: ASTERISK_MANAGER_USERNAME
+      type: text
+      label: Asterisk Manager Username (AMI)
+      tooltip: >-
+        Asterisk Manager Interface (AMI) username (default: switchboard).
+        Original var: asterisk_manager_username
+      defaultValue: switchboard
+      required: false
+    - name: ASTERISK_MANAGER_PASSWORD
+      type: text
+      label: Asterisk Manager Password (AMI)
+      tooltip: >-
+        Asterisk Manager Interface (AMI) password (default: password). Original
+        var: asterisk_manager_password
+      defaultValue: password
+      required: false
+    - name: ASTERISK_ARI_USERNAME
+      type: text
+      label: Asterisk ARI Username
+      tooltip: >-
+        Asterisk REST Interface (ARI) username (default: switchboard). Original
+        var: asterisk_ari_username
+      defaultValue: switchboard
+      required: false
+    - name: ASTERISK_ARI_PASSWORD
+      type: text
+      label: Asterisk ARI Password
+      tooltip: >-
+        Asterisk REST Interface (ARI) password (default: n2daLn3F0%&#). Original
+        var: asterisk_ari_password
+      defaultValue: n2daLn3F0%&#
+      required: false
+    - name: ASTERISK_DOMESTIC_CID
+      type: text
+      label: Asterisk Domestic Caller ID
+      tooltip: >-
+        Default caller ID for domestic calls (default: MISSING_VALUE). Original
+        var: asterisk_domestic_cid
+      defaultValue: MISSING_VALUE
+      required: false
+    - name: ASTERISK_INTERNATIONAL_CID
+      type: text
+      label: Asterisk International Caller ID
+      tooltip: >-
+        Default caller ID for international calls (default: MISSING_VALUE).
+        Original var: asterisk_international_cid
+      defaultValue: MISSING_VALUE
+      required: false
+    - name: ASTERISK_OUTBOUND_MAIL_HOST
+      type: text
+      label: Asterisk Outbound Mail Host
+      tooltip: >-
+        SMTP server for Asterisk (e.g., for voicemail emails) (default:
+        MISSING_VALUE). Original var: asterisk_outbound_mail_host
+      defaultValue: MISSING_VALUE
+      required: false
+    - name: BROWSERPHONE_GIT_REPO
+      type: text
+      label: BrowserPhone Git Repository
+      tooltip: >-
+        Git repository URL for BrowserPhone (default:
+        https://github.com/InnovateAsterisk/Browser-Phone.git). Original var:
+        browserphone_git_repo
+      defaultValue: https://github.com/InnovateAsterisk/Browser-Phone.git
+      required: false
+    - name: SWITCHBOARD_HOME_DIR
+      type: text
+      label: Switchboard Home Directory
+      tooltip: >-
+        Base directory for Switchboard frontend (default: /opt/switchboard).
+        Original var: switchboard_home_dir
+      defaultValue: /opt/switchboard
+      required: false
+    - name: SWITCHBOARD_PORT
+      type: number
+      label: Switchboard Frontend Port
+      tooltip: >-
+        Port for Switchboard frontend application (default: 8080). Original var:
+        switchboard_port
+      defaultValue: 8080
+      required: false
+    - name: SB_ARTIFACT_NAME
+      type: text
+      label: Switchboard Frontend Artifact Name
+      tooltip: >-
+        Artifact name for Switchboard frontend (default: SwitchBoard). Original
+        var: sb_artifact_name
+      defaultValue: SwitchBoard
+      required: false
+    - name: SB_VERSION
+      type: text
+      label: Switchboard Frontend Version
+      tooltip: >-
+        Version of Switchboard frontend (default: 1.3.0-beta.0). Original var:
+        sb_version
+      defaultValue: 1.3.0-beta.0
+      required: false
+    - name: SMTP_USER
+      type: text
+      label: SMTP User
+      tooltip: >-
+        SMTP username for Switchboard frontend (default: REPLACEME). Original
+        var: smtp_user
+      defaultValue: REPLACEME
+      required: false
+    - name: SMTP_PASSWORD
+      type: text
+      label: SMTP Password
+      tooltip: >-
+        SMTP password for Switchboard frontend (default: REPLACEME). Original
+        var: smtp_password
+      defaultValue: REPLACEME
+      required: false
+    - name: SMTP_HOST
+      type: text
+      label: SMTP Host
+      tooltip: >-
+        SMTP host for Switchboard frontend (default: REPLACEME). Original var:
+        smtp_host
+      defaultValue: REPLACEME
+      required: false
+    - name: IVR_HOME_DIR
+      type: text
+      label: IVR Home Directory
+      tooltip: >-
+        Base directory for Switchboard IVR (default: /opt/switchboard/javaivr).
+        Original var: ivr_home_dir
+      defaultValue: /opt/switchboard/javaivr
+      required: false
+    - name: IVR_ARTIFACT_NAME
+      type: text
+      label: Switchboard IVR Artifact Name
+      tooltip: >-
+        Artifact name for Switchboard IVR (default: ProminicIVRJava). Original
+        var: ivr_artifact_name
+      defaultValue: ProminicIVRJava
+      required: false
+    - name: IVR_VERSION
+      type: text
+      label: Switchboard IVR Version
+      tooltip: >-
+        Version of Switchboard IVR (default: 1.1.0-beta.1). Original var:
+        ivr_version
+      defaultValue: 1.1.0-beta.1
+      required: false
+    - name: IVR_SERVER_PORT
+      type: number
+      label: Switchboard IVR Server Port
+      tooltip: >-
+        Port for Switchboard IVR application (default: 8085). Original var:
+        ivr_server_port
+      defaultValue: 8085
+      required: false
+    - name: JAVA_VERSION
+      type: text
+      label: Java Version for SDKMAN
+      tooltip: >-
+        The Java version to be installed by SDKMAN (e.g., 11.0.27-zulu).
+        Original var: java_version
+      defaultValue: 11.0.27-zulu
+      required: false
+    - name: ETC_HOSTS_POSTGRES_IP
+      type: text
+      label: Postgres /etc/hosts IP
+      tooltip: 'IP address for vagrant.postgres in /etc/hosts (default: 127.0.0.1).'
+      defaultValue: 127.0.0.1
+      required: false
+    - name: ETC_HOSTS_INTERFACE_IP
+      type: text
+      label: Interface /etc/hosts IP
+      tooltip: 'IP address for vagrant.interface in /etc/hosts (default: 127.0.0.1).'
+      defaultValue: 127.0.0.1
+      required: false
+    - name: ETC_HOSTS_ASTERISK_IP
+      type: text
+      label: Asterisk /etc/hosts IP
+      tooltip: 'IP address for vagrant.asterisk in /etc/hosts (default: 127.0.0.1).'
+      defaultValue: 127.0.0.1
+      required: false
+    - name: BOOT_DISK_SIZE_GB
+      type: number
+      label: Boot Disk Size (GB)
+      tooltip: 'Size of the primary boot disk in Gigabytes (default: 48).'
+      defaultValue: 48
+      min: 20
+      max: 1024
+      required: false
+roles:
+  - name: setup
+    label: Setup
+    description: Basic server setup
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: networking
+    label: Networking
+    description: Configure networking settings
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: disks
+    label: Disks
+    description: Configure disk settings
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: hostname
+    label: Hostname
+    description: Configure hostname settings
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: dependencies
+    label: Dependencies
+    description: Install system dependencies
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: mdns
+    label: mDNS
+    description: Configure multicast DNS
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: service_user
+    label: Service User
+    description: Configure service user accounts
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: sdkman_install
+    label: SDKMAN Install
+    description: Install SDKMAN
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: sdkman_java
+    label: SDKMAN Java
+    description: Install Java via SDKMAN
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: sdkman_maven
+    label: SDKMAN Maven
+    description: Install Maven via SDKMAN
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: sdkman_gradle
+    label: SDKMAN Gradle
+    description: Install Gradle via SDKMAN
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: ssl
+    label: SSL
+    description: Configure SSL certificates
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: switchboard_asterisk
+    label: Switchboard Asterisk
+    description: Installs and configures Asterisk for Switchboard
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: switchboard_database
+    label: Switchboard Database
+    description: Sets up the PostgreSQL database for Switchboard and Asterisk
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: switchboard_ivr
+    label: Switchboard IVR
+    description: Installs the Switchboard IVR application
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: switchboard_frontend
+    label: Switchboard Frontend
+    description: Installs the Switchboard frontend application
+    defaultEnabled: true
+    required: true
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: switchboard_browserphone
+    label: Switchboard BrowserPhone
+    description: Installs the BrowserPhone component for Switchboard
+    defaultEnabled: true
+    required: false
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: vagrant_readme
+    label: Vagrant README
+    description: Generate Vagrant README
+    defaultEnabled: false
+    required: false
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false
+  - name: STARTCLOUD_LOCKDOWN
+    label: Lockdown
+    description: Secure the server with lockdown settings
+    defaultEnabled: false
+    required: false
+    installers:
+      installer: false
+      fixpack: false
+      hotfix: false

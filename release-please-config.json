@@ -5,12 +5,12 @@
             "release-type": "ruby",
             "bump-minor-pre-major": true,
             "bump-patch-for-minor-pre-major": true,
-            "package-name": "hcl_domino_standalone_provisioner",
+            "package-name": "hcl_voltmx_go_provisioner",
             "draft": false,
-            "version-file": "hcl_domino_standalone_provisioner/version.rb",
+            "version-file": "hcl_voltmx_go_provisioner/version.rb",
             "prerelease": false,
             "default-branch" : "main",
-            "component": "hcl_domino_standalone_provisioner"
+            "component": "hcl_voltmx_go_provisioner"
         }
     },
     "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"

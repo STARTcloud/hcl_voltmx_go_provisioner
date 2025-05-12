@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/STARTcloud/hcl_domino_standalone_provisioner/">
+  <a href="https://github.com/STARTcloud/hcl_voltmx_go_provisioner/">
     <img src="https://startcloud.com/assets/images/logos/startcloud-logo40.png" alt="Logo" width="200" height="100">
   </a>
 
@@ -10,14 +10,14 @@
   <p align="center">
     Documentation for HCL Domino Standalone Provisioner
     <br />
-    <a href="https://github.com/STARTcloud/hcl_domino_standalone_provisioner/"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/STARTcloud/hcl_voltmx_go_provisioner/"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/STARTcloud/hcl_domino_standalone_provisioner/">View Demo</a>
+    <a href="https://github.com/STARTcloud/hcl_voltmx_go_provisioner/">View Demo</a>
     ·
-    <a href="https://github.com/STARTcloud/hcl_domino_standalone_provisioner/issues">Report Bug</a>
+    <a href="https://github.com/STARTcloud/hcl_voltmx_go_provisioner/issues">Report Bug</a>
     ·
-    <a href="https://github.com/STARTcloud/hcl_domino_standalone_provisioner/issues">Request Feature</a>
+    <a href="https://github.com/STARTcloud/hcl_voltmx_go_provisioner/issues">Request Feature</a>
   </p>
 </p>
 
@@ -50,7 +50,7 @@ HCL Domino Standalone Provisioner is a collection of Ansible roles designed to i
 
 1. **~~Add HCL Domino Standalone Provisioner as a Git Submodule~~**: ~~First, ensure that HCL Domino Standalone Provisioner is added as a submodule to your project. This can be done using the following command:~~
 
-~~git submodule add -b submodule https://github.com/STARTcloud/hcl_domino_standalone_provisioner hcl_domino_standalone_provisioner~~
+~~git submodule add -b submodule https://github.com/STARTcloud/hcl_voltmx_go_provisioner hcl_voltmx_go_provisioner~~
    ~~Replace `path/to/submodule` with the desired path within your project where you want to include HCL Domino Standalone Provisioner.~~
 
 2. **~~Update the Submodule~~**: 
@@ -80,7 +80,7 @@ roles:
 By following these steps, you can seamlessly integrate HCL Domino Standalone Provisioner with the Core Provisioner, leveraging the power of Ansible roles to automate the configuration and security of your VMs. This approach enhances the flexibility and extensibility of your provisioning process, allowing for a more declarative and manageable setup.
 
 ## Roadmap
-See the [open issues](https://github.com/STARTcloud/hcl_domino_standalone_provisioner/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/STARTcloud/hcl_voltmx_go_provisioner/issues) for a list of proposed features (and known issues).
 
 ## Provider Support
 
@@ -128,7 +128,7 @@ Please read [CONTRIBUTING.md](https://www.prominic.net) for details on our code 
 * **Justin Hill** - *Initial work* - [JustinProminic](https://github.com/JustinProminic)
 * **Mark Gilbert** - *Refactor* - [MarkProminic](https://github.com/MarkProminic)
 
-See also the list of [contributors](https://github.com/STARTcloud/hcl_domino_standalone_provisioner/graphs/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/STARTcloud/hcl_voltmx_go_provisioner/graphs/contributors) who participated in this project.
 
 ## License
 

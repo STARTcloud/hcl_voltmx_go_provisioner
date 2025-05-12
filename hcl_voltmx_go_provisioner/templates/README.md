@@ -6,7 +6,7 @@ This repository contains two main configuration templates for provisioning virtu
 
 Access the template directory
 ```
-cd hcl_domino_standalone_provisioner/templates
+cd hcl_voltmx_go_provisioner/templates
 ```
 
 Copy your template of choice

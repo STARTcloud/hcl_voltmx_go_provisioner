@@ -7,10 +7,10 @@ support-bundle.zip
 
 # Don't Include Vagrant support files
 .vagrant
-hcl_domino_standalone_provisioner/id_rsa
-hcl_domino_standalone_provisioner/Hosts.yml
-hcl_domino_standalone_provisioner/results.yml
-hcl_domino_standalone_provisioner/templates/auto-SHI-Hosts.yml
+hcl_voltmx_go_provisioner/id_rsa
+hcl_voltmx_go_provisioner/Hosts.yml
+hcl_voltmx_go_provisioner/results.yml
+hcl_voltmx_go_provisioner/templates/auto-SHI-Hosts.yml
 # Don't include your ID Files!
 id-files/*.ids
 id-files/*.id

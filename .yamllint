@@ -1,0 +1,52 @@
+# .yamllint configuration
+
+yaml-files:
+  - '*.yaml'
+  - '*.yml'
+  - '.yamllint'
+  # Treat .j2 files in this specific path as YAML for linting structure
+  - 'hcl_voltmx_go_provisioner/provisioners/ansible/templates/*.j2'
+
+ignore: |
+  # SHI templates that use ::VAR:: syntax which isn't valid YAML
+  hcl_voltmx_go_provisioner/templates/Hosts.template.yml
+  hcl_voltmx_go_provisioner/templates/Multi.Hosts.template.yml
+  # Ansible collections are linted separately
+  hcl_voltmx_go_provisioner/provisioners/ansible_collections/
+  # Secrets file
+  hcl_voltmx_go_provisioner/secrets.yml
+  # Node modules or other vendored directories if they exist
+  node_modules/
+  vendor/
+  # Git directory
+  .git/
+
+rules:
+  # Default rules are generally good.
+  # Example: Disable a specific rule if needed
+  # line-length: disable
+  # Example: Configure a rule
+  line-length:
+    max: 120
+    level: warning
+  indentation:
+    spaces: consistent
+    indent-sequences: true # Indent block sequences.
+    check-multi-line-strings: false
+  braces:
+    max-spaces-inside: 1
+  brackets: enable
+  colons: enable
+  commas: enable
+  hyphens: enable
+  truthy:
+    # 'true', 'True', 'TRUE', 'false', 'False', 'FALSE' are okay
+    # 'yes', 'no', 'on', 'off' are not okay by default, which is good
+    allowed-values: ['true', 'false']
+  # Jinja2 templating might interfere with some rules, especially around spacing.
+  # These are common ones to relax for Jinja2-infused YAML.
+  # Consider using https://github.com/ansible/ansible-lint/blob/main/src/ansiblelint/config/yamllint-ansible.yml
+  # as a base if you have more complex Jinja in YAML.
+  # For now, keeping it simple.
+  # new-line-at-end-of-file: enable # Usually good
+  # trailing-spaces: enable # Usually good
