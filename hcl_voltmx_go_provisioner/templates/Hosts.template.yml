@@ -255,7 +255,7 @@ hosts:
       - name: startcloud.startcloud_roles.sdkman_install
       - name: startcloud.startcloud_roles.sdkman_java
       - name: startcloud.startcloud_roles.ssl
-      - name: startcloud.startcloud_roles.mariadb
+      - name: startcloud.startcloud_roles.mysql
 
       ## VoltMX Roles
       - name: startcloud.hcl_roles.voltmx
