@@ -3,42 +3,42 @@ hosts:
   -
     settings:
       # Vagrant Debug
-      debug_build: false
+      debug_build: true
 
       # Identifiers
-      hostname: ::SERVER_HOSTNAME::
-      domain: ::SERVER_DOMAIN::
-      server_id: '::SERVER_ID::'
+      hostname: vmx
+      domain: pmagold.com
+      server_id: '8619'
 
       # Extra Actions
-      post_provision: ::POST_PROVISION:: ## This calls extra things after Ansible completes, like syncing the new SSH key from the lockdown role, or the id_files or the support bundle
+      post_provision: true ## This calls extra things after Ansible completes, like syncing the new SSH key from the lockdown role, or the id_files or the support bundle
 
       # Resources
-      vcpus: ::RESOURCES_CPU::
-      memory: ::RESOURCES_RAM::
+      vcpus: 2
+      memory: 16G
 
       # Console Access
-      consoleport: ::SERVER_ID::
+      consoleport: '8619'
       consolehost: 0.0.0.0
-      show_console: ::SHOW_CONSOLE:: ## Some people have reported issues when VBox doesn't show the Console, default to false
+      show_console: false
 
       # Box information
       box: 'STARTcloud/debian12-server'
-      box_url: ::BOX_URL:: # Should default to 'https://boxvault.startcloud.com' but can be set to 'https://vagrantcloud.com'
+      box_url: 'https://boxvault.startcloud.com'
       box_version: 2025.4.30
 
       # Provider Specific Settings
-      provider_type: virtualbox
-      os_type: 'Debian_64'
+      provider_type: zones
+      os_type: 'generic'
       firmware_type: UEFI
 
       # Setup Variables
       setup_wait: 420
 
       # Vagrant Configurations
-      vagrant_user: ::SERVER_DEFAULT_USER:: #  startcloud
-      vagrant_user_pass: ::SERVER_DEFAULT_USER_PASS:: # 'STARTcloud24@!'
-      vagrant_user_private_key_path: ./id_rsa
+      vagrant_user: startcloud
+      vagrant_user_pass: 'STARTcloud24@!'
+      vagrant_user_private_key_path: ./core/ssh_keys/id_rsa
       vagrant_ssh_insert_key: true
       vagrant_ssh_forward_agent: true
       vagrant_ssh_keep_alive: true
@@ -52,50 +52,90 @@ hosts:
         -
           name: vagrant-scp
 
+    zones:
+      on_demand_vnics: true
+      post_provision_boot: true
+      vmtype: production
+      brand: bhyve
+      console_onboot: false
+      console: webvnc
+      debug: false
+      debug_boot: false
+      hostbridge: i440fx
+      acpi: on
+      autostart: true
+      setup_method: zlogin
+      diskif: virtio
+      netif: virtio-net-viona
+      booted_string: 'Web console:'
+      lcheck_string: ':~$'
+      alcheck_string: 'login:'
+      safe_restart: 'sudo shutdown -r'
+      safe_shutdown: 'sudo init 0 || true'
+      clean_shutdown_time: 200
+      snapshot_script: '/opt/vagrant/bin/Snapshooter.sh'
+      cpu_configuration: simple
+
     networks:
-      # if ::NO_BRIDGE_INTERFACE::
-      # TO SHI DEVs, if user wants to to disable the external bridged interface, then you should remove the below block
       -
         type: external
-        address: ::NETWORK_ADDRESS::
-        netmask: ::NETWORK_NETMASK::
-        gateway: ::NETWORK_GATEWAY::
+        address: 172.17.205.193
+        netmask: 255.255.0.0
+        gateway: 172.17.1.1
         autoconf: false
-        vlan:
-        dhcp4: ::NETWORK_DHCP4::
+        vlan: 0
+        dhcp4: false
         dhcp6: false
         is_control: false
         route: default
         provisional: false
-        bridge: ::NETWORK_BRIDGE::
-        nic_type: virtio
+        bridge: igb0
+        #nic_type: virtio
         mac: auto
         dns:
-          - nameserver: ::NETWORK_DNS_NAMESERVER_1::
-          - nameserver: ::NETWORK_DNS_NAMESERVER_2::
+          - nameserver: 199.103.7.51
+          - nameserver: 199.103.5.20
+          - nameserver: 208.85.189.20
+          - nameserver: 208.85.188.127
+      -
+        type: external
+        address: 10.190.190.2
+        netmask: 255.255.255.0
+        gateway: 10.190.190.1
+        autoconf: false
+        vlan: 0
+        dhcp4: false
+        dhcp6: false
+        is_control: true
+        route: 10.190.190.1/24
+        provisional: true
+        bridge: estub_vz_1
+        mac: auto
+        dns:
+          - nameserver: 199.103.7.51
+          - nameserver: 199.103.5.20
+          - nameserver: 208.85.189.20
+          - nameserver: 208.85.188.127
 
     disks:
       boot:
-        array: null
-        dataset: null
-        volume_name: null
+        array: Array-0
+        dataset: zones
+        volume_name: boot
         mount: /
-        size: 48G
-    
+        size: 64G
+
       additional_disks:
-      # if ::ADDITIONAL_DISK::
-      # TO SHI DEVs, if user wants to store thier data on a secondary disk, you would enable this block
-      #  - array: null
-      #    dataset: null
-      #    sparse: true
-      #    live: false
-      #    filesystem: xfs
-      #    mount: ::ADDITIONAL_DISK_MOUNT_POINT::
-      #    size: ::ADDITIONAL_DISK_SIZE::
-      #    port: 5
-      #    device: vdb
-      #    #driver: virtio-scsi #Only add if your template doesn't already use virtio-scsi(the new templates do)
-      #    volume_name: disk1
+        -
+          array: Array-0
+          dataset: zones
+          sparse: true
+          live: false
+          filesystem: ext4
+          mount: /local
+          size: 100.0G
+          device: vdb
+          volume_name: disk1
 
     provisioning:
       shell:
@@ -134,7 +174,7 @@ hosts:
                 collections:
                   - startcloud.startcloud_roles
                   - startcloud.hcl_roles
-
+                  - prominic.prominic_roles
               -
                 description: "This playbook configures the machine for roles tagged as always, using the generated playbook: /vagrant/ansible/playbook.yml"
                 playbook: ansible/always-playbook.yml
@@ -149,6 +189,11 @@ hosts:
                 collections:
                   - startcloud.startcloud_roles
 
+      docker:
+        enabled: false
+        docker_compose:
+          - '/vagrant/installers/docker/docker-compose.yml'
+
     folders:
       -
         description: "Disables VBoxSF, do not enable"
@@ -162,7 +207,7 @@ hosts:
         description: "Directory for Ansible Scripts"
         map: ./provisioners/ansible/
         to: /vagrant/ansible/
-        type: ::SYNC_METHOD:: ## rsync or scp
+        type: rsync
         args:
           - '--verbose'
           - '--archive'
@@ -174,7 +219,7 @@ hosts:
         description: "Directory for Ansible Collections"
         map: ./provisioners/ansible_collections/
         to: /vagrant/ansible_collections/
-        type: ::SYNC_METHOD:: ## rsync or scp
+        type: rsync
         args:
           - '--verbose'
           - '--archive'
@@ -186,36 +231,37 @@ hosts:
         description: "Directory for Application Installers"
         map: ./installers/
         to: /vagrant/installers/
-        type: ::SYNC_METHOD:: ## rsync or scp
+        type: rsync
 
       -
         description: "Directory for Pre-Signed SSLs"
         map: ./ssls/
         to: /secure/
-        type: ::SYNC_METHOD:: ## rsync or scp
-
+        type: rsync
     vars:
       # Secrets Override: If you don't want to use a secrets file you can override secrets here
       # Uncomment and fill in these lines if you want to download the installers for this instance
       # Note that the installer names must match the names on the download server.
       #secrets:
-      #  installer_base_url: ::DOWNLOAD_BASE_URL::
-      #  installer_url_user: ::DOWNLOAD_AUTH_USER::
-      #  installer_url_pass: ::DOWNLOAD_AUTH_PASS::
+      #  domino_installer_base_url: "https://XXXXXXXXX.XXXXXXXXX.XXX"
+      #  domino_installer_url_user: "XXXXXXXXXXXX@XXXXXXXXXXX"
+      #  domino_installer_url_pass: "XXXXXXXXXXXX"
+
+      provisioner: hcl_voltmx_go_provisioner
 
       ## Provisioner Debug
-      debug_all: ::DEBUG_ALL_ANSIBLE_TASKS::
+      debug_all: true
 
       ## SSL
-      selfsigned_enabled: ::CERT_SELFSIGNED::
+      selfsigned_enabled: true
       haproxy_ssl_redirect: true
       letsencrypt_enabled: false
       letsencrypt_staging_enabled: false
 
       ## Use Proxy for downloads and updates
-      use_proxy: ::USE_HTTP_PROXY::
-      proxy_server: ::HTTP_PROXY_HOST::
-      proxy_port: ::HTTP_PROXY_PORT::
+      use_proxy: false
+      proxy_server:
+      proxy_port: 3128
 
       ## Extra Packages
       extra_packages: ['htop']
@@ -246,12 +292,12 @@ hosts:
           - voltmx
           - www
 
-      ## Hosts entries for /etc/hosts ## Really only needed for Standalone
+      ## Hosts entries for /etc/hosts
       #etc_hosts_entries:
-      #  - hostname: ::DOMINO_ORIGIN_HOSTNAME::.::DOMINO_ORIGIN_DOMAIN::
+      #  - hostname: test.domain.com
       #    aliases:
-      #      - ::DOMINO_ORIGIN_HOSTNAME::
-      #    ip: ::DOMINO_ORIGIN_SERVER_IP::
+      #      - test
+      #    ip: 255.255.255.255
 
     roles:
       - name: startcloud.startcloud_roles.setup
@@ -270,6 +316,7 @@ hosts:
       ## VoltMX Roles
       - name: startcloud.hcl_roles.voltmx
       - name: startcloud.hcl_roles.domino_voltmx_go
+
       - name: startcloud.startcloud_roles.quick_start
         tags: always
       - name: startcloud.startcloud_roles.haproxy
