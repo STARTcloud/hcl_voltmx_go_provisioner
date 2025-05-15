@@ -229,12 +229,20 @@ hosts:
       voltmx_admin_email: support@prominic.net
       voltmx_admin_pass: "SomeRandomPasswordSecureMe@!"
       voltmx_installation_type: Development
+      voltmx_upgrade: false
 
       mariadb_admin_pass: SomeMariaDBeyPassword
       mariadb_admin_user: root
 
       haproxy_http_port: 80
       haproxy_https_port: 443
+
+      dns_entries_list:
+          - console
+          - downloads
+          - welcome
+          - voltmx
+          - www
 
       ## Hosts entries for /etc/hosts ## Really only needed for Standalone
       #etc_hosts_entries:
