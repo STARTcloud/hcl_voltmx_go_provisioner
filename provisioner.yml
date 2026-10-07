@@ -1,0 +1,228 @@
+name: hcl_voltmx_go_provisioner
+version: 0.1.23
+label: HCL VoltMX Go Provisioner
+description: >-
+  Provisions an HCL VoltMX Foundry server with the VoltMX Go plugin for Domino
+author: STARTcloud
+icon: https://startcloud.com/brand-assets/startcloud.svg
+homepage: https://startcloud.com/
+metadata:
+  configuration:
+    groups:
+      - name: provider
+        label: Provider
+      - name: voltmx
+        label: VoltMX
+      - name: database
+        label: Database
+      - name: ssl
+        label: SSL
+      - name: installers
+        label: Installer Archives
+        advanced: true
+      - name: packages
+        label: Packages
+      - name: sync
+        label: File Sync
+        advanced: true
+      - name: proxy
+        label: Download Proxy
+        advanced: true
+      - name: debug
+        label: Debugging
+        advanced: true
+    fields:
+      - name: VAGRANT_PROVIDER
+        label: Vagrant Provider
+        tooltip: >-
+          Hypervisor provider the machine is created on — VirtualBox on
+          desktops, Bhyve/zones on illumos hosts
+        type: select
+        group: provider
+        default: virtualbox
+        options:
+          - label: VirtualBox
+            value: virtualbox
+          - label: Bhyve/Zones (illumos)
+            value: zones
+      - name: VOLTMX_ADMIN_FIRST_NAME
+        label: VoltMX Admin First Name
+        tooltip: First name of the VoltMX Foundry administrator account
+        type: text
+        group: voltmx
+        default: VoltMX
+      - name: VOLTMX_ADMIN_LAST_NAME
+        label: VoltMX Admin Last Name
+        tooltip: Last name of the VoltMX Foundry administrator account
+        type: text
+        group: voltmx
+        default: Admin
+      - name: VOLTMX_ADMIN_EMAIL
+        label: VoltMX Admin Email
+        tooltip: Email address the VoltMX Foundry administrator signs in with
+        type: text
+        group: voltmx
+        default: support@prominic.net
+      - name: VOLTMX_ADMIN_PASSWORD
+        label: VoltMX Admin Password
+        tooltip: Password for the VoltMX Foundry administrator account
+        type: text
+        group: voltmx
+        default: SomeRandomPasswordSecureMe@!
+      - name: VOLTMX_INSTALLATION_TYPE
+        label: VoltMX Installation Type
+        tooltip: Installation type handed to the VoltMX Foundry silent installer, for example Development
+        type: text
+        group: voltmx
+        default: Development
+      - name: VOLTMX_UPGRADE
+        label: Upgrade an Existing VoltMX Installation
+        tooltip: Install into a new iteration directory and reuse the existing VoltMX databases
+        type: checkbox
+        group: voltmx
+        default: false
+      - name: CERT_PASS
+        label: Keystore Password
+        tooltip: Password protecting the JKS keystore Tomcat serves the VoltMX HTTPS connector from
+        type: text
+        group: voltmx
+        default: SuperSecureSecretPassword@!
+      - name: MYSQL_ROOT_USERNAME
+        label: MySQL Root Username
+        tooltip: Administrative MySQL user the VoltMX Foundry databases are created with
+        type: text
+        group: database
+        default: root
+      - name: MYSQL_ROOT_PASSWORD
+        label: MySQL Root Password
+        tooltip: Password of the administrative MySQL user
+        type: text
+        group: database
+        default: Jheakxe7BE3gA3
+      - name: CERT_SELFSIGNED
+        label: Use Self-Signed Certificate
+        tooltip: Generate a self-signed certificate for this server's web services
+        type: checkbox
+        group: ssl
+        default: true
+      - name: HAPROXY_SSL_REDIRECT
+        label: Redirect HTTP to HTTPS
+        tooltip: Have HAProxy redirect all plain HTTP requests to HTTPS
+        type: checkbox
+        group: ssl
+        default: true
+      - name: LETSENCRYPT_ENABLED
+        label: Use Let's Encrypt
+        tooltip: >-
+          Request a certificate from Let's Encrypt instead of using a
+          self-signed one — requires a publicly resolvable hostname
+        type: checkbox
+        group: ssl
+        default: false
+      - name: LETSENCRYPT_STAGING_ENABLED
+        label: Use Let's Encrypt Staging Environment
+        tooltip: >-
+          Use the Let's Encrypt staging CA to avoid production rate limits while
+          testing
+        type: checkbox
+        group: ssl
+        default: false
+        show_if:
+          LETSENCRYPT_ENABLED: true
+      - name: VOLTMX_INSTALLER
+        label: VoltMX Foundry Installer Archive
+        tooltip: >-
+          Filename of the VoltMX Foundry installer tar placed in
+          installers/voltmx/archives or downloaded from your installer server
+        type: text
+        group: installers
+        default: VoltFoundrySetup-9.5.18.1_GA.tar.gz
+      - name: EXTRA_PACKAGES
+        label: Extra Packages
+        tooltip: Additional Debian packages installed during provisioning
+        type: multiselect
+        group: packages
+        default:
+          - htop
+        options:
+          - htop
+          - tmux
+          - vim
+          - curl
+          - wget
+          - ncdu
+          - iotop
+      - name: SYNC_METHOD
+        label: Folder Sync Method
+        tooltip: Vagrant synced-folder mechanism — rsync or scp
+        type: text
+        group: sync
+        default: rsync
+      - name: USE_PROXY
+        label: Use HTTP Proxy for Downloads
+        tooltip: Route installer downloads and package updates through an HTTP proxy
+        type: checkbox
+        group: proxy
+        default: false
+      - name: PROXY_SERVER
+        label: Proxy Server
+        tooltip: Hostname or IP address of the HTTP proxy
+        type: text
+        group: proxy
+        required: true
+        show_if:
+          USE_PROXY: true
+      - name: PROXY_PORT
+        label: Proxy Port
+        tooltip: TCP port of the HTTP proxy
+        type: number
+        group: proxy
+        default: 3128
+        show_if:
+          USE_PROXY: true
+        validate:
+          min: 1
+          max: 65535
+      - name: DEBUG_ALL
+        label: Verbose Provisioner Debug
+        tooltip: Enable verbose output for all Ansible provisioning tasks
+        type: checkbox
+        group: debug
+        default: true
+  presentation: {}
+  roles:
+    - name: mysql
+      label: MySQL
+      description: Installs the MySQL database server that backs VoltMX Foundry
+    - name: voltmx
+      label: VoltMX Foundry
+      description: >-
+        Installs HCL VoltMX Foundry from the configured installer archive and
+        configures its Tomcat connectors behind HAProxy
+      depends_on:
+        - mysql
+    - name: domino_voltmx_go
+      label: VoltMX Go Plugin
+      description: Installs the VoltMX Go plugin for Domino into the VoltMX Foundry Tomcat
+      depends_on:
+        - voltmx
+    - name: haproxy
+      label: HAProxy
+      description: >-
+        Installs HAProxy as the TLS-terminating reverse proxy in front of VoltMX
+        web services
+      depends_on:
+        - ssl
+    - name: quick_start
+      label: Quick Start Page
+      description: Serves the provisioning status and welcome page during and after setup
+    - name: vagrant_readme
+      label: Vagrant README
+      description: >-
+        Generates a README on the guest describing access details for this
+        machine
+    - name: lockdown
+      label: Lockdown
+      description: >-
+        Hardens the guest at the end of provisioning — rotates credentials and
+        applies the configured user password
