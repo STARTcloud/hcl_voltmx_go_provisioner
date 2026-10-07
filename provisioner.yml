@@ -1,8 +1,7 @@
 name: hcl_voltmx_go_provisioner
-version: 0.1.23
+version: 0.2.0
 label: HCL VoltMX Go Provisioner
-description: >-
-  Provisions an HCL VoltMX Foundry server with the VoltMX Go plugin for Domino
+description: Provisions an HCL VoltMX Foundry server with the VoltMX Go plugin for Domino
 author: STARTcloud
 icon: https://startcloud.com/brand-assets/startcloud.svg
 homepage: https://startcloud.com/
@@ -71,25 +70,33 @@ metadata:
         default: SomeRandomPasswordSecureMe@!
       - name: VOLTMX_INSTALLATION_TYPE
         label: VoltMX Installation Type
-        tooltip: Installation type handed to the VoltMX Foundry silent installer, for example Development
+        tooltip: >-
+          Installation type handed to the VoltMX Foundry silent installer, for
+          example Development
         type: text
         group: voltmx
         default: Development
       - name: VOLTMX_UPGRADE
         label: Upgrade an Existing VoltMX Installation
-        tooltip: Install into a new iteration directory and reuse the existing VoltMX databases
+        tooltip: >-
+          Install into a new iteration directory and reuse the existing VoltMX
+          databases
         type: checkbox
         group: voltmx
         default: false
       - name: CERT_PASS
         label: Keystore Password
-        tooltip: Password protecting the JKS keystore Tomcat serves the VoltMX HTTPS connector from
+        tooltip: >-
+          Password protecting the JKS keystore Tomcat serves the VoltMX HTTPS
+          connector from
         type: text
         group: voltmx
         default: SuperSecureSecretPassword@!
       - name: MYSQL_ROOT_USERNAME
         label: MySQL Root Username
-        tooltip: Administrative MySQL user the VoltMX Foundry databases are created with
+        tooltip: >-
+          Administrative MySQL user the VoltMX Foundry databases are created
+          with
         type: text
         group: database
         default: root
